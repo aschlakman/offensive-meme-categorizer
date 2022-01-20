@@ -1,0 +1,3 @@
+[submodule "analyze_results/FleissKappa"]
+	path = analyze_results/FleissKappa
+	url = https://github.com/Shamya/FleissKappa.git
