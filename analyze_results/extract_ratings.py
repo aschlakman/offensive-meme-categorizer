@@ -108,6 +108,29 @@ def get_rater_classifications(db_file_names: List[str]) -> List[List[int]]:
     return all_raters_classifications
 
 
+def is_harmless(binary_classification: List[int]) -> bool:
+    """
+    Check if individual binary classification counts as harmful / harmless
+    :param binary_classification:  binary meme classification
+    :return: True for harmless meme, False otherwise
+    """
+    return binary_classification[0] >= binary_classification[1]
+
+
+def get_avg_rating(meme_rating: List[int]) -> float:
+    """
+    Get the average rating, based on raters overall score
+    :param meme_rating: rating, in format returned by `get_aggregated_classification`
+    :return: Average rater score
+    """
+    raters_count = 0
+    rating_sum = 0
+    for i, val in enumerate(meme_rating):
+        rating_sum += i * val
+        raters_count += val
+    return rating_sum / raters_count
+
+
 def create_binary_scale(classification_matrix: Dict[str, List[int]]) -> Dict[str, List[int]]:
     """
     Create a binary scale for rater scores (i.e. convert numeric scores to boolean scores)
@@ -127,7 +150,7 @@ def create_binary_scale(classification_matrix: Dict[str, List[int]]) -> Dict[str
             else:
                 binary_classification[1] += value
 
-        if binary_classification[0] >= binary_classification[1]:
+        if is_harmless(binary_classification):
             harmless_count += 1
         else:
             offensive_count += 1
