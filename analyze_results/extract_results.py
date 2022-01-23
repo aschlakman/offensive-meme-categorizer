@@ -3,7 +3,7 @@ from typing import Set, List
 from collections import defaultdict
 
 
-def get_image_to_category(db_file: str):
+def _get_image_to_category(db_file: str):
     con = sqlite3.connect(db_file)
     cur = con.cursor()
     image_to_category = dict()
@@ -19,7 +19,7 @@ where dataSets.dataSetName != 'ds\sampleSetOne'
     return image_to_category
 
 
-def get_categories(db_file: str):
+def _get_categories(db_file: str):
     con = sqlite3.connect(db_file)
     cur = con.cursor()
     categories = []
@@ -35,7 +35,7 @@ group by categories.categoryName
     return categories
 
 
-def get_indexed_categories(categories: Set[str]):
+def _get_indexed_categories(categories: Set[str]):
     ordered_categories = list(categories)
     ordered_categories.sort()
 
@@ -50,11 +50,11 @@ def get_aggregated_classification(db_file_names: List[str]):
     categories = set()
 
     for db_file_path in db_file_names:
-        categories.update(get_categories(db_file_path))
-        image_to_category = get_image_to_category(db_file_path)
+        categories.update(_get_categories(db_file_path))
+        image_to_category = _get_image_to_category(db_file_path)
         file_to_categorized_images[db_file_path] = image_to_category
 
-    category_to_index = get_indexed_categories(categories)
+    category_to_index = _get_indexed_categories(categories)
 
     image_to_classifications = defaultdict(list)
     for db_file, categorized_images in file_to_categorized_images.items():
@@ -78,11 +78,11 @@ def get_rater_classifications(db_file_names: List[str]) -> List[List[int]]:
     categories = set()
 
     for db_file_path in db_file_names:
-        categories.update(get_categories(db_file_path))
-        image_to_category = get_image_to_category(db_file_path)
+        categories.update(_get_categories(db_file_path))
+        image_to_category = _get_image_to_category(db_file_path)
         file_to_categorized_images[db_file_path] = image_to_category
 
-    category_to_index = get_indexed_categories(categories)
+    category_to_index = _get_indexed_categories(categories)
 
     all_raters_classifications: List[List[int]] = []
     for db_file, categorized_images in file_to_categorized_images.items():
@@ -97,6 +97,31 @@ def get_rater_classifications(db_file_names: List[str]) -> List[List[int]]:
     return all_raters_classifications
 
 
+def create_binary_scale(classification_matrix: List[List[int]]):
+    binary_classification_matrix: List[List[int]] = list()
+
+    harmless_count = 0
+    offensive_count = 0
+
+    for discrete_classification in classification_matrix:
+        binary_classification = [0, 0]
+        for i, value in enumerate(discrete_classification):
+            if i + 1 <= len(discrete_classification) / 2:
+                binary_classification[0] += value
+            else:
+                binary_classification[1] += value
+
+        if binary_classification[0] >= binary_classification[1]:
+            harmless_count += 1
+        else:
+            offensive_count += 1
+        binary_classification_matrix.append(binary_classification)
+
+    print(f"Harmless: {harmless_count} Offensive: {offensive_count} "
+          f"Percent Offensive: {offensive_count / (offensive_count + harmless_count)}")
+    return binary_classification_matrix
+
+
 if __name__ == '__main__':
     db_files = [
         r"C:\Code\seminar\results_db\storage_yaara.db",
@@ -105,6 +130,3 @@ if __name__ == '__main__':
                 ]
     classification_matrix = get_aggregated_classification(db_files)
     print(classification_matrix)
-
-
-
