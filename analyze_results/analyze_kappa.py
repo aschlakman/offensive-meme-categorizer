@@ -1,7 +1,7 @@
 from scipy.stats import kendalltau
 
 from FleissKappa.fleiss import fleissKappa
-from extract_results import get_aggregated_classification, get_rater_classifications, create_binary_scale
+from extract_ratings import get_aggregated_classification, get_rater_classifications, create_binary_scale
 
 if __name__ == '__main__':
     db_files = [
@@ -9,14 +9,16 @@ if __name__ == '__main__':
         r"C:\Code\seminar\offensive-meme-categorizer\results_db\storageAri.db",
         r"C:\Code\seminar\offensive-meme-categorizer\results_db\storageKadyn.db",
     ]
-    classification_matrix = get_aggregated_classification(db_files)
+    image_to_agg_classification = get_aggregated_classification(db_files)
+    classification_matrix = list(image_to_agg_classification.values())
     print(classification_matrix)
-    binary_matrix = create_binary_scale(classification_matrix)
-    print(binary_matrix)
+    binary_matrix = create_binary_scale(image_to_agg_classification)
+    binary_matrix_values = list(binary_matrix.values())
+    print(binary_matrix_values)
 
     f = fleissKappa(classification_matrix, len(db_files))
 
-    f_bin = fleissKappa(binary_matrix, len(db_files))
+    f_bin = fleissKappa(binary_matrix_values, len(db_files))
 
     print('#######################\nComputing Kendall Tau:')
     flat_raters_classifications = get_rater_classifications(db_files)

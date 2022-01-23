@@ -1,5 +1,5 @@
 import sqlite3
-from typing import Set, List
+from typing import Set, List, Dict
 from collections import defaultdict
 
 
@@ -45,7 +45,13 @@ def _get_indexed_categories(categories: Set[str]):
     return category_to_index
 
 
-def get_aggregated_classification(db_file_names: List[str]):
+def get_aggregated_classification(db_file_names: List[str]) -> Dict[str, List[int]]:
+    """
+    Get a list of the amount of scores given for each meme,
+    i.e. [[2,1,0],[...]] -> For the first meme, a score of 1 was given by 2 raters, and a score of 2 was given by 1 rater.
+    :param db_file_names: Names of the db files.
+    :return: A list of the amount of scores given by the raters for each meme.
+    """
     file_to_categorized_images = dict()
     categories = set()
 
@@ -61,19 +67,24 @@ def get_aggregated_classification(db_file_names: List[str]):
         for image_name, category_name in categorized_images.items():
             image_to_classifications[image_name].append(category_name)
 
-    classification_matrix: List[List[int]] = list()
+    classification_matrix: Dict[str, List[int]] = dict()
     for image, classifications in image_to_classifications.items():
 
         aggregated_classifications = [0 for _ in category_to_index]
         for classification in classifications:
             index = category_to_index[classification]
             aggregated_classifications[index] += 1
-        classification_matrix.append(aggregated_classifications)
+        classification_matrix[image] = aggregated_classifications
 
     return classification_matrix
 
 
 def get_rater_classifications(db_file_names: List[str]) -> List[List[int]]:
+    """
+    Get a list of the all the scores that each rater gave.
+    :param db_file_names: Names of the db files
+    :return: All scores given by each rater.
+    """
     file_to_categorized_images = dict()
     categories = set()
 
@@ -97,13 +108,18 @@ def get_rater_classifications(db_file_names: List[str]) -> List[List[int]]:
     return all_raters_classifications
 
 
-def create_binary_scale(classification_matrix: List[List[int]]):
-    binary_classification_matrix: List[List[int]] = list()
+def create_binary_scale(classification_matrix: Dict[str, List[int]]) -> Dict[str, List[int]]:
+    """
+    Create a binary scale for rater scores (i.e. convert numeric scores to boolean scores)
+    :param classification_matrix: Mapping between image name and classifications.
+    :return: Image name to the raters binary score
+    """
+    binary_classification_matrix:Dict[str, List[int]] = dict()
 
     harmless_count = 0
     offensive_count = 0
 
-    for discrete_classification in classification_matrix:
+    for image_name, discrete_classification in classification_matrix.items():
         binary_classification = [0, 0]
         for i, value in enumerate(discrete_classification):
             if i + 1 <= len(discrete_classification) / 2:
@@ -115,7 +131,7 @@ def create_binary_scale(classification_matrix: List[List[int]]):
             harmless_count += 1
         else:
             offensive_count += 1
-        binary_classification_matrix.append(binary_classification)
+        binary_classification_matrix[image_name] = binary_classification
 
     print(f"Harmless: {harmless_count} Offensive: {offensive_count} "
           f"Percent Offensive: {offensive_count / (offensive_count + harmless_count)}")
@@ -128,5 +144,5 @@ if __name__ == '__main__':
         r"C:\Code\seminar\results_db\storageMerav.db",
         r"C:\Code\seminar\results_db\storageAri.db"
                 ]
-    classification_matrix = get_aggregated_classification(db_files)
-    print(classification_matrix)
+    image_to_aggregated_classification = get_aggregated_classification(db_files)
+    print(image_to_aggregated_classification)
