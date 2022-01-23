@@ -38,13 +38,12 @@ if __name__ == '__main__':
 
             binary_ratings = image_to_bin_scale[image_file_name]
             data['binary_ratings'] = binary_ratings
-            data['target_harmless'] = is_harmless(binary_ratings)
+            data['target_harmful'] = not is_harmless(binary_ratings)
 
             image_to_full_data[image_file_name] = data
 
     with open(out_path, 'w') as out_file:
         json.dump(image_to_full_data, out_file)
-
 
     pprint.pprint(image_to_full_data)
     print(f'Extracted data for {len(image_to_full_data)} rated memes')
