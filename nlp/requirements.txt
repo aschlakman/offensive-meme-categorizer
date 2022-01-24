@@ -1,0 +1,5 @@
+# Project was tested with Python 3.9.5
+
+spacy
+pandas
+scikit-learn
