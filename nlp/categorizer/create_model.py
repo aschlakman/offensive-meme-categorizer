@@ -14,7 +14,7 @@ from sklearn.base import BaseEstimator
 from categorizer.transformer import predictors
 from categorizer.vectorizer import bow_vector
 
-MEMES_RATED_JSON = r'C:\Code\seminar\offensive-meme-categorizer\analyze_results\rated_memes.json'
+MEMES_RATED_JSON = r'..\..\analyze_results\rated_memes.json'
 
 def create_model(estimator_algorithm: 'BaseEstimator' = None, is_continuous = False):
     print('Continuous mode: ', is_continuous)
