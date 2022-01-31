@@ -163,9 +163,9 @@ def create_binary_scale(classification_matrix: Dict[str, List[int]]) -> Dict[str
 
 if __name__ == '__main__':
     db_files = [
-        r"C:\Code\seminar\results_db\storage_yaara.db",
-        r"C:\Code\seminar\results_db\storageMerav.db",
-        r"C:\Code\seminar\results_db\storageAri.db"
+        r"..\results_db\storage_yaara.db",
+        r"..\results_db\storageMerav.db",
+        r"..\results_db\storageAri.db"
                 ]
     image_to_aggregated_classification = get_aggregated_classification(db_files)
     print(image_to_aggregated_classification)
