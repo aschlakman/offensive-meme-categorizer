@@ -3,9 +3,9 @@ import json
 from extract_ratings import get_aggregated_classification, create_binary_scale, is_harmless, get_avg_rating
 
 db_files = [
-    r"C:\Code\seminar\offensive-meme-categorizer\results_db\storage_yaara.db",
-    r"C:\Code\seminar\offensive-meme-categorizer\results_db\storageAri.db",
-    r"C:\Code\seminar\offensive-meme-categorizer\results_db\storageKadyn.db",
+    r"..\..\results_db\storage_yaara.db",
+    r"..\..\results_db\storageAri.db",
+    r"..\..\results_db\storageKadyn.db",
 ]
 
 if __name__ == '__main__':
